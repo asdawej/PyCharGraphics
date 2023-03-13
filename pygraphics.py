@@ -137,6 +137,7 @@ class PaintBoard:
     paint: (PictureObj) -> None
     render: (Buffers) -> None
     flash: (Buffers) -> None
+    render_flash: (Buffers) -> None
     '''
 
     def __init__(self, _h: int, _w: int) -> None:
@@ -190,16 +191,17 @@ class PaintBoard:
                 _x.move()
                 self._paint(_x)
 
+    def render_flash(self, buf: Buffers) -> None:
+        'self.render(buf); self.flash(buf)'
+        self.render(buf)
+        self.flash(buf)
+
 
 if __name__ == '__main__':
-    buf = Buffers(0.05)
-    obj = DynamicObj([['1', '2'], ['3', '4'], ['5', '6']], 0, 0, 0, 1, -math.pi/4)
-    board = PaintBoard(30, 30)
+    buf = Buffers(0.01)
+    obj = DynamicObj([['1']], 0, 0, 0, 0.5, 0)
+    board = PaintBoard(30, 50)
     board.paint(obj)
-    for _ in range(int(board.height/math.sin(math.pi/4))-3):
-        board.render(buf)
-        board.flash(buf)
-    obj.move_angle = math.pi+obj.move_angle
-    for _ in range(int(board.height/math.sin(math.pi/4))-3):
-        board.render(buf)
-        board.flash(buf)
+    while int(obj.row) != 29:
+        obj.move_angle = -math.atan(2*obj.col/20)
+        board.render_flash(buf)
