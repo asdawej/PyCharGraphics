@@ -105,26 +105,27 @@ class PictureObj:
 class DynamicObj(PictureObj):
     '''
     [PictureObj]
-    move_length: float          // Step length of the next move
-    move_angle: float           // Direction of the next move
+    move_r: float               // Move in row
+    move_c: float               // Move in column
 
     move: () -> None
     '''
 
     def __init__(self, _pic: CharMap | MapSize | tuple[CharMap, MapSize],
                  row: float = 0, col: float = 0, layer: int = 0,
-                 move_length: float = 0, move_angle: float = 0) -> None:
+                 move_r: float = 0, move_c: float = 0) -> None:
         PictureObj.__init__(self, _pic, row=row, col=col, layer=layer)
-        self.move_length = move_length
-        self.move_angle = move_angle
+        self.move_r = move_r
+        self.move_c = move_c
 
     def move(self) -> None:
-        '''Move to another place according to .move_length and .move_angle\n
+        '''Move to another place according to .move_r and .move_c\n
         An example:\n
-        .move_length = 1, .move_angle = math.pi/2\n
-        <=> move up 1 <=> .row--'''
-        self.row -= self.move_length*math.sin(self.move_angle)
-        self.col += self.move_length*math.cos(self.move_angle)
+        .row = 0, .col = 0\n
+        .move_r = 1, .move_c = 2\n
+        => .row = 1, .col = 2'''
+        self.row += self.move_r
+        self.col += self.move_c
 
 
 class PaintBoard:
@@ -138,6 +139,11 @@ class PaintBoard:
     render: (Buffers) -> None
     flash: (Buffers) -> None
     render_flash: (Buffers) -> None
+    detect_border: (DynamicObj) -> bool
+    detect_obj: (DynamicObj, PictureObj) -> bool
+
+    _paint: (int, int) -> None
+    _erase: (PictureObj) -> None
     '''
 
     def __init__(self, _h: int, _w: int) -> None:
@@ -196,12 +202,26 @@ class PaintBoard:
         self.render(buf)
         self.flash(buf)
 
+    def detect_border(self, obj: DynamicObj) -> bool:
+        'Check if out of the borders'
+        return (obj.row < 0 or obj.col < 0 or
+                obj.row >= self.height or obj.col >= self.width)
+
+    def detect_obj(self, obj: DynamicObj, target: PictureObj) -> bool:
+        'Check if get into another obj'
+        pass
 
 if __name__ == '__main__':
     buf = Buffers(0.01)
-    obj = DynamicObj([['1']], 0, 0, 0, 0.5, 0)
-    board = PaintBoard(30, 50)
+    obj = DynamicObj([['#']])
+    board = PaintBoard(30, 20)
     board.paint(obj)
-    while int(obj.row) != 29:
-        obj.move_angle = -math.atan(2*obj.col/20)
+    obj.move_r = 1
+    def f(x):
+        return 10*math.sin(x/math.pi)+10
+    for i in range(29):
+        obj.move_c = f(0) if i == 0 else f(i)-f(i-1)
         board.render_flash(buf)
+        board.paint(PictureObj(obj.picture, obj.row, obj.col, 1))
+    import os
+    os.system('pause')
