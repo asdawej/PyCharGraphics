@@ -12,6 +12,8 @@ import win32console as wincon
 CharMap = list[list[str]]
 MapSize = tuple[int, int]
 
+whitespace_chars: set[str] = {'\0', ' ', '\t', '\n', '\r'}
+
 
 class Buffers:
     '''
@@ -76,6 +78,8 @@ class PictureObj:
     col: float                  // The column coordinate of left-top
     detect: list[list[bool]]    // To detect whether two objs coincide
     layer: int                  // The layer number
+
+    hollow: () -> None
     '''
 
     def __init__(self, _pic: CharMap | MapSize | tuple[CharMap, MapSize],
@@ -101,6 +105,13 @@ class PictureObj:
         self.detect = [[True]*self.width for _ in range(self.height)]
         self.layer = layer
 
+    def hollow(self) -> None:
+        'Delete all the blank char(null, space, tab, newline, return, etc) from the .detect'
+        for i in range(self.height):
+            for j in range(self.width):
+                if self.picture[i][j] in whitespace_chars:
+                    self.detect[i][j] = False
+
 
 class DynamicObj(PictureObj):
     '''
@@ -108,6 +119,7 @@ class DynamicObj(PictureObj):
     move_r: float               // Move in row
     move_c: float               // Move in column
 
+    hollow: () -> None
     move: () -> None
     '''
 
@@ -160,7 +172,8 @@ class PaintBoard:
         for i in range(int_row, int_row+target_obj.height):
             for j in range(int_col, int_col+target_obj.width):
                 if self.objs_map[i][j] == None or target_obj.layer >= self.objs_map[i][j].layer:
-                    self.objs_map[i][j] = target_obj
+                    if target_obj.detect[i-int_row][j-int_col]:
+                        self.objs_map[i][j] = target_obj
                     self.board[i][j] = target_obj.picture[i-int_row][j-int_col]
 
     def _erase(self, target_obj: PictureObj) -> None:
@@ -204,12 +217,20 @@ class PaintBoard:
 
     def detect_border(self, obj: DynamicObj) -> bool:
         'Check if out of the borders'
-        return (obj.row < 0 or obj.col < 0 or
-                obj.row >= self.height or obj.col >= self.width)
+        obj_new_r = int(obj.row+obj.move_r)
+        obj_new_c = int(obj.col+obj.move_c)
+        return (obj_new_r < 0 or obj_new_c < 0) or (obj_new_r >= self.height or obj_new_c >= self.width)
 
     def detect_obj(self, obj: DynamicObj, target: PictureObj) -> bool:
         'Check if get into another obj'
-        pass
+        obj_new_r = int(obj.row+obj.move_r)
+        obj_new_c = int(obj.col+obj.move_c)
+        if isinstance(target, DynamicObj):
+            target_new_r = int(target.row+target.move_r)
+            target_new_c = int(target.col+target.move_c)
+            return (obj_new_r, obj_new_c) == (target_new_r, target_new_c)
+        return self.objs_map[obj_new_r][obj_new_c] == target
+
 
 if __name__ == '__main__':
     buf = Buffers(0.01)
@@ -217,6 +238,7 @@ if __name__ == '__main__':
     board = PaintBoard(30, 20)
     board.paint(obj)
     obj.move_r = 1
+
     def f(x):
         return 10*math.sin(x/math.pi)+10
     for i in range(29):
