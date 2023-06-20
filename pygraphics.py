@@ -69,6 +69,16 @@ def pic_resize(pic: CharMap, new_size: MapSize) -> CharMap:
     ]
 
 
+def pic_redraw(pic: list[str]) -> CharMap:
+    'Make a string list into a char map'
+    r = len(pic)
+    c = max([len(s) for s in pic])
+    new_pic = []
+    for i in range(r):
+        new_pic.append(list(pic[i])+[' ']*(c-len(pic[i])))
+    return new_pic
+
+
 class PictureObj:
     '''
     picture: list[list[str]]    // Character map of the picture
