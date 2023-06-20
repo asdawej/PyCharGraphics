@@ -119,7 +119,7 @@ class DynamicObj(PictureObj):
     move_r: float               // Move in row
     move_c: float               // Move in column
 
-    hollow: () -> None
+    [PictureObj]
     move: () -> None
     '''
 
@@ -228,8 +228,19 @@ class PaintBoard:
         if isinstance(target, DynamicObj):
             target_new_r = int(target.row+target.move_r)
             target_new_c = int(target.col+target.move_c)
-            return (obj_new_r, obj_new_c) == (target_new_r, target_new_c)
-        return self.objs_map[obj_new_r][obj_new_c] == target
+            target_new_range_r = range(target_new_r, target_new_r+target.height)
+            target_new_range_c = range(target_new_c, target_new_c+target.width)
+            for i in range(obj_new_r, obj_new_r+obj.height):
+                for j in range(obj_new_c, obj_new_c+obj.width):
+                    if i in target_new_range_r and j in target_new_range_c:
+                        if obj.detect[i-obj_new_r][j-obj_new_c] and target.detect[i-target_new_r][j-target_new_c]:
+                            return True
+        else:
+            for i in range(obj_new_r, obj_new_r+obj.height):
+                for j in range(obj_new_c, obj_new_c+obj.width):
+                    if self.objs_map[i][j] == target:
+                        return True
+        return False
 
 
 if __name__ == '__main__':
