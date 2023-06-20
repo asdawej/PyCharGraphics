@@ -3,8 +3,9 @@ import pathlib as plb
 sys.path.append(plb.Path('.'))
 import pyconio as pco
 import pygraphics as pgp
+import pyimage as pim
 
-import math
+import math, time
 import random as rd
 
 # SIZE
@@ -44,7 +45,17 @@ def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard):
     enemy.move_c = 0
 
 board = pgp.PaintBoard(R, C)
+
+t0 = time.time()
 board.paint(background)
+imst = pim.imread('im.dat')
+imst.objs[0].row = R//2-1
+imst.objs[0].col = C//2-4
+board.paint(imst.objs[0])
+while time.time()-t0 <= 3:
+    board.render_flash(buf)
+board._erase(imst.objs[0])
+
 board.paint(obj)
 for enemy in enemies:
     board.paint(enemy)
