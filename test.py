@@ -1,3 +1,9 @@
+# !usr/bin/env python
+# -*- coding: utf-8 -*-
+
+# === 前置部分 ===
+
+
 import sys
 import pathlib as plb
 sys.path.append(plb.Path('.'))
@@ -7,9 +13,11 @@ import pyimage as pim
 
 import math, time
 import random as rd
+from typing import Callable
+
 
 # SIZE
-R, C = 25, 100
+R, C = 25, 50
 
 # 键值
 KB_W = 119
@@ -22,6 +30,10 @@ KB_DOWN = 80
 KB_LEFT = 75
 KB_RIGHT = 77
 
+
+# === 对象生成 ===
+
+
 # Background
 background = [[' ']*C for _ in range(R)]
 background[0] = ['=']*C
@@ -32,39 +44,18 @@ for i in range(R):
 background = pgp.PictureObj(background)
 background.hollow()
 
+
 buf = pgp.Buffers(0.01)                                                 # 缓冲区
 obj = pgp.DynamicObj([['#']], row=R-2, col=C//2)                        # 自机
 enemies = [pgp.DynamicObj([['@']], row=1, col=1) for _ in range(10)]    # 敌机
+board = pgp.PaintBoard(R, C)                                            # 画板
 
-def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard):
-    '敌机初始化, 随机取一个顶部位置射出'
-    board._erase(enemy) # 只是擦除敌机, 没有从画板上去除敌机
-    enemy.row = 1
-    enemy.col = rd.randint(1, C-2)
-    enemy.move_r = 0.25
-    enemy.move_c = 0
 
-board = pgp.PaintBoard(R, C)
+# === 函数 ===
 
-t0 = time.time()
-board.paint(background)
-imst = pim.imread('im.dat')
-imst.objs[0].row = R//2-1
-imst.objs[0].col = C//2-4
-board.paint(imst.objs[0])
-while time.time()-t0 <= 3:
-    board.render_flash(buf)
-board._erase(imst.objs[0])
 
-board.paint(obj)
-for enemy in enemies:
-    board.paint(enemy)
-    enemy_init(enemy, board)
-board.render_flash(buf)
-
-break_flag: bool = False
-while True:
-    # 检测键盘
+def keyboard_check(obj: pgp.DynamicObj) -> None:
+    '检测键盘'
     if pco.py_kbhit():
         c = pco.py_getch()
         if c == KB_W:
@@ -86,11 +77,15 @@ while True:
             elif cc == KB_RIGHT:
                 obj.move_c = 1
 
+
+def crush_check(board: pgp.PaintBoard,
+                obj: pgp.DynamicObj, enemies: list[pgp.DynamicObj],
+                enemy_init: Callable[[pgp.DynamicObj, pgp.PaintBoard], None]) -> bool:
+    '碰撞检测'
     for enemy in enemies:
         # 撞上敌机
         if board.detect_obj(obj, enemy):
-            break_flag = True
-            break
+            return True
         # 敌机碰到边界
         if board.detect_border(enemy) or board.detect_obj(enemy, background):
             enemy.move_r = enemy.move_c = 0
@@ -98,9 +93,76 @@ while True:
     # 自机碰到边界
     if board.detect_border(obj) or board.detect_obj(obj, background):
         obj.move_r = obj.move_c = 0
+    return False
 
+
+# === 1.开场 ===
+
+
+t0 = time.time()
+board.paint(background)
+imst = pim.imread('im.dat')
+imst.objs[0].row = R//2-1
+imst.objs[0].col = C//2-4
+board.paint(imst.objs[0])
+while time.time()-t0 <= 3:
+    board.render_flash(buf)
+board._erase(imst.objs[0])
+
+
+# === 2.随机斜向弹幕 ===
+
+
+def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
+    '敌机初始化, 随机取一个顶部位置随机方向射出'
+    board._erase(enemy) # 只是擦除敌机, 没有从画板上去除敌机
+    enemy.row = 1
+    enemy.col = rd.randint(1, C-2)
+    enemy_ang = (rd.random()-0.5)*math.pi/2
+    enemy_len = 0.25
+    enemy.move_r = enemy_len*math.cos(enemy_ang)
+    enemy.move_c = enemy_len*math.sin(enemy_ang)
+
+
+# 绘制自机、敌机
+board.paint(obj)
+for enemy in enemies:
+    board.paint(enemy)
+    enemy_init(enemy, board)
+board.render_flash(buf)
+
+
+t0 = time.time()
+t1 = 5
+while time.time()-t0 <= t1:
+    keyboard_check(obj)
+    break_flag = crush_check(board, obj, enemies, enemy_init)
     board.render_flash(buf)
     obj.move_r = obj.move_c = 0
     # 撞上敌机
     if break_flag:
-        break
+        exit()
+
+
+# === 2.随机下落弹幕 ===
+
+
+def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
+    '敌机初始化, 随机取一个顶部位置射出'
+    board._erase(enemy) # 只是擦除敌机, 没有从画板上去除敌机
+    enemy.row = 1
+    enemy.col = rd.randint(1, C-2)
+    enemy.move_r = 0.25
+    enemy.move_c = 0
+
+
+t0 = time.time()
+t2 = 5
+while time.time()-t0 <= t2:
+    keyboard_check(obj)
+    break_flag = crush_check(board, obj, enemies, enemy_init)
+    board.render_flash(buf)
+    obj.move_r = obj.move_c = 0
+    # 撞上敌机
+    if break_flag:
+        exit()
