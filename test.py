@@ -80,12 +80,12 @@ def keyboard_check(obj: pgp.DynamicObj) -> None:
 
 def crush_check(board: pgp.PaintBoard,
                 obj: pgp.DynamicObj, enemies: list[pgp.DynamicObj],
-                enemy_init: Callable[[pgp.DynamicObj, pgp.PaintBoard], None]) -> bool:
+                enemy_init: Callable[[pgp.DynamicObj, pgp.PaintBoard], None]) -> pgp.DynamicObj:
     '碰撞检测'
     for enemy in enemies:
         # 撞上敌机
         if board.detect_obj(obj, enemy):
-            return True
+            return enemy
         # 敌机碰到边界
         if board.detect_border(enemy) or board.detect_obj(enemy, background):
             enemy.move_r = enemy.move_c = 0
@@ -93,7 +93,7 @@ def crush_check(board: pgp.PaintBoard,
     # 自机碰到边界
     if board.detect_border(obj) or board.detect_obj(obj, background):
         obj.move_r = obj.move_c = 0
-    return False
+    return None
 
 
 # === 1.开场 ===
@@ -144,7 +144,7 @@ while time.time()-t0 <= t1:
         exit()
 
 
-# === 2.随机下落弹幕 ===
+# === 3.随机下落弹幕 ===
 
 
 def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
@@ -157,12 +157,13 @@ def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
 
 
 t0 = time.time()
-t2 = 5
+t2 = 100
 while time.time()-t0 <= t2:
     keyboard_check(obj)
     break_flag = crush_check(board, obj, enemies, enemy_init)
-    board.render_flash(buf)
-    obj.move_r = obj.move_c = 0
     # 撞上敌机
     if break_flag:
-        exit()
+        board.erase(break_flag)
+        enemies.remove(break_flag)
+    board.render_flash(buf)
+    obj.move_r = obj.move_c = 0

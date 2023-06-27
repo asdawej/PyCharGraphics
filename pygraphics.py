@@ -152,12 +152,14 @@ class DynamicObj(PictureObj):
 
 class PaintBoard:
     '''
-    height: int                     // Board height
-    width: int                      // Board width
-    board: list[list[str]]          // The char map display on the screen
-    layers: list[list[DynamicObj]]  // To store the DynamicObj on the board
+    height: int                         // Board height
+    width: int                          // Board width
+    board: list[list[str]]              // The char map display on the screen
+    layers: list[list[DynamicObj]]      // To store the DynamicObj on the board
+    objs_map: list[list[PictureObj]]    // The char possession of objs
 
     paint: (PictureObj) -> None
+    erase: (PictureObj) -> None
     render: (Buffers) -> None
     flash: (Buffers) -> None
     render_flash: (Buffers) -> None
@@ -205,6 +207,13 @@ class PaintBoard:
         # new_obj: DynamicObj
         if isinstance(new_obj, DynamicObj):
             self.layers[new_obj.layer].append(new_obj)
+    
+    def erase(self, old_obj: PictureObj) -> None:
+        'Remove a PictureObj from the PaintBoard'
+        self._erase(old_obj)
+        # old_obj: DynamicObj
+        if isinstance(old_obj, DynamicObj):
+            self.layers[old_obj.layer].remove(old_obj)
 
     def render(self, buf: Buffers) -> None:
         'Display the board on the screen'
