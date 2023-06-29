@@ -1,5 +1,7 @@
-# !usr/bin/env python
-# -*- coding: utf-8 -*-
+# -------------------- #
+# __author__ = asdawej #
+# -------------------- #
+
 
 from __future__ import annotations
 
@@ -207,7 +209,7 @@ class PaintBoard:
         # new_obj: DynamicObj
         if isinstance(new_obj, DynamicObj):
             self.layers[new_obj.layer].append(new_obj)
-    
+
     def erase(self, old_obj: PictureObj) -> None:
         'Remove a PictureObj from the PaintBoard'
         self._erase(old_obj)
@@ -260,20 +262,3 @@ class PaintBoard:
                     if self.objs_map[i][j] == target:
                         return True
         return False
-
-
-if __name__ == '__main__':
-    buf = Buffers(0.01)
-    obj = DynamicObj([['#']])
-    board = PaintBoard(30, 20)
-    board.paint(obj)
-    obj.move_r = 1
-
-    def f(x):
-        return 10*math.sin(x/math.pi)+10
-    for i in range(29):
-        obj.move_c = f(0) if i == 0 else f(i)-f(i-1)
-        board.render_flash(buf)
-        board.paint(PictureObj(obj.picture, obj.row, obj.col, 1))
-    import os
-    os.system('pause')

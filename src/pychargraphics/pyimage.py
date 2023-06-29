@@ -1,13 +1,12 @@
-# !usr/bin/env python
-# -*- coding: utf-8 -*-
+# -------------------- #
+# __author__ = asdawej #
+# -------------------- #
+
 
 from __future__ import annotations
 from typing import Container
 
-import sys
-import pathlib as plb
-sys.path.append(plb.Path('.'))
-import pygraphics as pgp
+from . import pygraphics as pgp
 
 
 class ImStruct:
@@ -36,7 +35,7 @@ class ImStruct:
                 self.objs.append(x)
 
 
-def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: str ='utf-8') -> None:
+def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: str = 'utf-8') -> None:
     'To write one or more PictureObj or DynamicObj into a file'
     with open(file, 'w', encoding=encoding) as fp:
         imst = ImStruct(objs)
@@ -46,10 +45,10 @@ def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: st
         fp.write('\n')
         for obj in imst.objs:
             # PictureObj
-            fp.write(str(obj.height)+' '+
-                     str(obj.width)+' '+
-                     str(obj.row)+' '+
-                     str(obj.col)+' '+
+            fp.write(str(obj.height)+' ' +
+                     str(obj.width)+' ' +
+                     str(obj.row)+' ' +
+                     str(obj.col)+' ' +
                      str(obj.layer)+'\n')
             for i in range(obj.height):
                 for j in range(obj.width):
@@ -66,7 +65,7 @@ def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: st
 
 def imread(file, encoding: str = 'utf-8') -> ImStruct:
     'To read some PictureObj or DynamicObj from a file'
-    with open(file , 'r', encoding=encoding) as fp:
+    with open(file, 'r', encoding=encoding) as fp:
         length = int(fp.readline())
         typemap = [x == '1' for x in fp.readline()]
         objs: list[pgp.PictureObj] = []
@@ -102,17 +101,3 @@ def imread(file, encoding: str = 'utf-8') -> ImStruct:
         imst.typemap = typemap
         imst.objs = objs
         return imst
-
-
-if __name__ == '__main__':
-    im1 = pgp.pic_redraw([
-        'ВанХуа Project',
-        'By asdawej'
-    ])
-    im2 = pgp.pic_redraw([
-        'Touhou Project',
-        'By ZUN'
-    ])
-    obj1 = pgp.PictureObj(im1)
-    obj2 = pgp.DynamicObj(im2)
-    imwrite('im.dat', (obj1, obj2))

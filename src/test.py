@@ -4,14 +4,12 @@
 # === 前置部分 ===
 
 
-import sys
-import pathlib as plb
-sys.path.append(plb.Path('.'))
-import pyconio as pco
-import pygraphics as pgp
-import pyimage as pim
+import pychargraphics.pyconio as pco
+import pychargraphics.pygraphics as pgp
+import pychargraphics.pyimage as pim
 
-import math, time
+import math
+import time
 import random as rd
 from typing import Callable
 
@@ -115,7 +113,7 @@ board._erase(imst.objs[0])
 
 def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
     '敌机初始化, 随机取一个顶部位置随机方向射出'
-    board._erase(enemy) # 只是擦除敌机, 没有从画板上去除敌机
+    board._erase(enemy)  # 只是擦除敌机, 没有从画板上去除敌机
     enemy.row = 1
     enemy.col = rd.randint(1, C-2)
     enemy_ang = (rd.random()-0.5)*math.pi/2
@@ -149,7 +147,7 @@ while time.time()-t0 <= t1:
 
 def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
     '敌机初始化, 随机取一个顶部位置射出'
-    board._erase(enemy) # 只是擦除敌机, 没有从画板上去除敌机
+    board._erase(enemy)  # 只是擦除敌机, 没有从画板上去除敌机
     enemy.row = 1
     enemy.col = rd.randint(1, C-2)
     enemy.move_r = 0.25
@@ -167,3 +165,5 @@ while time.time()-t0 <= t2:
         enemies.remove(break_flag)
     board.render_flash(buf)
     obj.move_r = obj.move_c = 0
+    if not enemies:
+        break
