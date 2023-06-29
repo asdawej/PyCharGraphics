@@ -5,7 +5,6 @@
 
 from __future__ import annotations
 
-import math
 import time
 import win32console as wincon
 
