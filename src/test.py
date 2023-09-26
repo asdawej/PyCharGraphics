@@ -13,12 +13,6 @@ import time
 import random as rd
 from typing import Callable
 
-ctrl_flag = 0
-try:
-    import joystick_test as jst
-except:
-    ctrl_flag = 1
-
 
 # SIZE
 R, C = 25, 50
@@ -49,8 +43,8 @@ background = pgp.PictureObj(background)
 background.hollow()
 
 
-buf = pgp.Buffers(0.01)                                                 # 缓冲区
-obj = pgp.DynamicObj([['#']], row=R-2, col=C//2)                        # 自机
+buf = pgp.Buffers(0.001)                                                # 缓冲区
+obj = pgp.DynamicObj([['#', '#'], ['#', '#']], row=R-3, col=C//2)       # 自机
 enemies = [pgp.DynamicObj([['@']], row=1, col=1) for _ in range(10)]    # 敌机
 board = pgp.PaintBoard(R, C)                                            # 画板
 
@@ -60,31 +54,26 @@ board = pgp.PaintBoard(R, C)                                            # 画板
 
 def keyboard_check(obj: pgp.DynamicObj) -> None:
     '检测键盘'
-    if ctrl_flag:
-        if pco.py_kbhit():
-            c = pco.py_getch()
-            if c == KB_W:
+    if pco.py_kbhit():
+        c = pco.py_getch()
+        if c == KB_W:
+            obj.move_r = -1
+        elif c == KB_S:
+            obj.move_r = 1
+        elif c == KB_A:
+            obj.move_c = -1
+        elif c == KB_D:
+            obj.move_c = 1
+        elif c == KB_FUNC:
+            cc = pco.py_getch()
+            if cc == KB_UP:
                 obj.move_r = -1
-            elif c == KB_S:
+            elif cc == KB_DOWN:
                 obj.move_r = 1
-            elif c == KB_A:
+            elif cc == KB_LEFT:
                 obj.move_c = -1
-            elif c == KB_D:
+            elif cc == KB_RIGHT:
                 obj.move_c = 1
-            elif c == KB_FUNC:
-                cc = pco.py_getch()
-                if cc == KB_UP:
-                    obj.move_r = -1
-                elif cc == KB_DOWN:
-                    obj.move_r = 1
-                elif cc == KB_LEFT:
-                    obj.move_c = -1
-                elif cc == KB_RIGHT:
-                    obj.move_c = 1
-    else:
-        joystick = jst.parse_data(jst.get_data(jst.arduino))
-        obj.move_r = (joystick[1]-1)/5
-        obj.move_c = (joystick[0]-1)/5
 
 
 def crush_check(board: pgp.PaintBoard,
@@ -142,7 +131,7 @@ board.render_flash(buf)
 
 
 t0 = time.time()
-t1 = 0
+t1 = 5
 while time.time()-t0 <= t1:
     keyboard_check(obj)
     break_flag = crush_check(board, obj, enemies, enemy_init)
