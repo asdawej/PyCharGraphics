@@ -7,7 +7,7 @@ package-dir = {"" = "src"}
 packages = ["pychargraphics"]
 
 [tool.setuptools.package-data]
-pychargraphics = ["*.pyd"]
+pychargraphics = ["*.pyd", "*.pyi"]
 
 [project]
 name = "pychargraphics"
