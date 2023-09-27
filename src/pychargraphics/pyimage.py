@@ -11,9 +11,10 @@ from . import pygraphics as pgp
 
 class ImStruct:
     '''
-    length: int                     // Number of PictureObj
-    typemap: list[bool]             // To record PictureObj or DynamicObj
-    objs: list[pgp.PictureObj]      // PictureObj in list
+    member:
+    - `length`: `int`                   // Number of `PictureObj`
+    - `typemap`: `list[bool]`           // To record `PictureObj` or `DynamicObj`
+    - `objs`: `list[pgp.PictureObj]`    // `PictureObj` in list
     '''
 
     def __init__(self, objs: pgp.PictureObj | Container[pgp.PictureObj] = None) -> None:
@@ -36,7 +37,7 @@ class ImStruct:
 
 
 def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: str = 'utf-8') -> None:
-    'To write one or more PictureObj or DynamicObj into a file'
+    'To write one or more `PictureObj` or `DynamicObj` into a file'
     with open(file, 'w', encoding=encoding) as fp:
         imst = ImStruct(objs)
         fp.write(str(imst.length)+'\n')
@@ -64,7 +65,7 @@ def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: st
 
 
 def imread(file, encoding: str = 'utf-8') -> ImStruct:
-    'To read some PictureObj or DynamicObj from a file'
+    'To read some `PictureObj` or `DynamicObj` from a file'
     with open(file, 'r', encoding=encoding) as fp:
         length = int(fp.readline())
         typemap = [x == '1' for x in fp.readline()]

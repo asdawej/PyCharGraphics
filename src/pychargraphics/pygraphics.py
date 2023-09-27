@@ -18,15 +18,18 @@ whitespace_chars: set[str] = {'\0', ' ', '\t', '\n', '\r'}
 
 class Buffers:
     '''
-    .Buffer_Loop:
-        buffer: win32console.PyConsoleScreenBuffer  // The buffer to write in
-        next: .Buffer_Loop                          // The Buffer_Loop of the buffer to print out
+    class:
+    - `.Buffer_Loop`:
+        - `buffer`: `win32console.PyConsoleScreenBuffer`    // The buffer to write in
+        - `next`: `.Buffer_Loop`                            // The Buffer_Loop of the buffer to print out
 
-    wait: float             // The waiting time for flash
-    buffers: .Buffer_Loop   // Two buffer areas
+    member:
+    - `wait`: `float`           // The waiting time for flash
+    - `buffers`: `.Buffer_Loop` // Two buffer areas
 
-    print: (str) -> None
-    flash: () -> None
+    method:
+    - `print`: `(str) -> None`
+    - `flash`: `() -> None`
     '''
     class Buffer_Loop:
         def __init__(self, _next: 'Buffers.Buffer_Loop' = None) -> None:
@@ -82,15 +85,17 @@ def pic_redraw(pic: list[str]) -> CharMap:
 
 class PictureObj:
     '''
-    picture: list[list[str]]    // Character map of the picture
-    height: int                 // Height
-    width: int                  // Width
-    row: float                  // The row coordinate of left-top
-    col: float                  // The column coordinate of left-top
-    detect: list[list[bool]]    // To detect whether two objs coincide
-    layer: int                  // The layer number
+    member:
+    - `picture`: `list[list[str]]`  // Character map of the picture
+    - `height`: `int`               // Height
+    - `width`: `int`                // Width
+    - `row`: `float`                // The row coordinate of left-top
+    - `col`: `float`                // The column coordinate of left-top
+    - `detect`: `list[list[bool]]`  // To detect whether two objs coincide
+    - `layer`: `int`                // The layer number
 
-    hollow: () -> None
+    method:
+    - `hollow`: `() -> None`
     '''
 
     def __init__(self, _pic: CharMap | MapSize | tuple[CharMap, MapSize],
@@ -117,7 +122,7 @@ class PictureObj:
         self.layer = layer
 
     def hollow(self) -> None:
-        'Delete all the blank char(null, space, tab, newline, return, etc) from the .detect'
+        'Delete all the blank char(null, space, tab, newline, return, etc) from the `.detect`'
         for i in range(self.height):
             for j in range(self.width):
                 if self.picture[i][j] in whitespace_chars:
@@ -126,12 +131,14 @@ class PictureObj:
 
 class DynamicObj(PictureObj):
     '''
-    [PictureObj]
-    move_r: float               // Move in row
-    move_c: float               // Move in column
+    member:
+    - [`PictureObj`]
+    - `move_r`: `float` // Move in row
+    - `move_c`: `float` // Move in column
 
-    [PictureObj]
-    move: () -> None
+    method:
+    - [`PictureObj`]
+    - `move`: `() -> None`
     '''
 
     def __init__(self, _pic: CharMap | MapSize | tuple[CharMap, MapSize],
@@ -142,33 +149,40 @@ class DynamicObj(PictureObj):
         self.move_c = move_c
 
     def move(self) -> None:
-        '''Move to another place according to .move_r and .move_c\n
-        An example:\n
-        .row = 0, .col = 0\n
-        .move_r = 1, .move_c = 2\n
-        => .row = 1, .col = 2'''
+        '''
+        Move to another place according to `.move_r` and `.move_c`\n
+        An example:
+        ```
+        .row = 0, .col = 0
+        .move_r = 1, .move_c = 2
+        => .row = 1, .col = 2
+        ```
+        '''
         self.row += self.move_r
         self.col += self.move_c
 
 
 class PaintBoard:
     '''
-    height: int                         // Board height
-    width: int                          // Board width
-    board: list[list[str]]              // The char map display on the screen
-    layers: list[list[DynamicObj]]      // To store the DynamicObj on the board
-    objs_map: list[list[PictureObj]]    // The char possession of objs
+    member:
+    - `height`: `int`                       // Board height
+    - `width`: `int`                        // Board width
+    - `board`: `list[list[str]]`            // The char map display on the screen
+    - `layers`: `list[list[DynamicObj]]`    // To store the `DynamicObj` on the board
+    - `objs_map`: `list[list[PictureObj]]`  // The char possession of objs
 
-    paint: (PictureObj) -> None
-    erase: (PictureObj) -> None
-    render: (Buffers) -> None
-    flash: (Buffers) -> None
-    render_flash: (Buffers) -> None
-    detect_border: (DynamicObj) -> bool
-    detect_obj: (DynamicObj, PictureObj) -> bool
+    method:
+    - `paint`: `(PictureObj) -> None`
+    - `erase`: `(PictureObj) -> None`
+    - `render`: `(Buffers) -> None`
+    - `flash`: `(Buffers) -> None`
+    - `render_flash`: `(Buffers) -> None`
+    - `detect_border`: `(DynamicObj) -> bool`
+    - `detect_obj`: `(DynamicObj, PictureObj) -> bool`
 
-    _paint: (int, int) -> None
-    _erase: (PictureObj) -> None
+    baseMethod:
+    - `_paint`: `(int, int) -> None`
+    - `_erase`: `(PictureObj) -> None`
     '''
 
     def __init__(self, _h: int, _w: int) -> None:
@@ -179,7 +193,7 @@ class PaintBoard:
         self.objs_map: list[list[PictureObj]] = [[None]*_w for _ in range(_h)]
 
     def _paint(self, target_obj: PictureObj) -> None:
-        'Original method of painting a PictureObj'
+        'Original method of painting a `PictureObj`'
         int_row = int(target_obj.row)
         int_col = int(target_obj.col)
         for i in range(int_row, int_row+target_obj.height):
@@ -190,7 +204,7 @@ class PaintBoard:
                     self.board[i][j] = target_obj.picture[i-int_row][j-int_col]
 
     def _erase(self, target_obj: PictureObj) -> None:
-        'Original method of erasing a PictureObj'
+        'Original method of erasing a `PictureObj`'
         int_row = int(target_obj.row)
         int_col = int(target_obj.col)
         for i in range(int_row, int_row+target_obj.height):
@@ -200,7 +214,7 @@ class PaintBoard:
                     self.board[i][j] = ' '
 
     def paint(self, new_obj: PictureObj) -> None:
-        'Put a new PictureObj on the PaintBoard'
+        'Put a new `PictureObj` on the `PaintBoard`'
         if (_length := len(self.layers)) <= new_obj.layer:
             for _ in range(new_obj.layer-(_length-1)):
                 self.layers.append([])
@@ -210,7 +224,7 @@ class PaintBoard:
             self.layers[new_obj.layer].append(new_obj)
 
     def erase(self, old_obj: PictureObj) -> None:
-        'Remove a PictureObj from the PaintBoard'
+        'Remove a `PictureObj` from the `PaintBoard`'
         self._erase(old_obj)
         # old_obj: DynamicObj
         if isinstance(old_obj, DynamicObj):
@@ -231,7 +245,7 @@ class PaintBoard:
                 self._paint(_x)
 
     def render_flash(self, buf: Buffers) -> None:
-        'self.render(buf); self.flash(buf)'
+        '`self.render(buf); self.flash(buf)`'
         self.render(buf)
         self.flash(buf)
 
