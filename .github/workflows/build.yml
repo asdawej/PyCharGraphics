@@ -18,7 +18,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools>=61.0 pywin32>=305
+        pip install setuptools pywin32
 
     - name: Build package
       run: |
