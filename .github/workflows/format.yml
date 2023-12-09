@@ -23,4 +23,4 @@ jobs:
 
     - name: Format code
       run: |
-        autopep8 --in-place --recursive .
+        autopep8 .
