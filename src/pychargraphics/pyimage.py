@@ -40,17 +40,17 @@ def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: st
     'To write one or more `PictureObj` or `DynamicObj` into a file'
     with open(file, 'w', encoding=encoding) as fp:
         imst = ImStruct(objs)
-        fp.write(str(imst.length)+'\n')
+        fp.write(str(imst.length) + '\n')
         for x in imst.typemap:
             fp.write(str(int(x)))
         fp.write('\n')
         for obj in imst.objs:
             # PictureObj
-            fp.write(str(obj.height)+' ' +
-                     str(obj.width)+' ' +
-                     str(obj.row)+' ' +
-                     str(obj.col)+' ' +
-                     str(obj.layer)+'\n')
+            fp.write(str(obj.height) + ' ' +
+                     str(obj.width) + ' ' +
+                     str(obj.row) + ' ' +
+                     str(obj.col) + ' ' +
+                     str(obj.layer) + '\n')
             for i in range(obj.height):
                 for j in range(obj.width):
                     fp.write(str(int(obj.detect[i][j])))
@@ -61,7 +61,7 @@ def imwrite(file, objs: pgp.PictureObj | Container[pgp.PictureObj], encoding: st
                 fp.write('\n')
             # DynamicObj
             if isinstance(obj, pgp.DynamicObj):
-                fp.write(str(obj.move_r)+' '+str(obj.move_c)+'\n')
+                fp.write(str(obj.move_r) + ' ' + str(obj.move_c) + '\n')
 
 
 def imread(file, encoding: str = 'utf-8') -> ImStruct:
