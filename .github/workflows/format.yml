@@ -24,3 +24,11 @@ jobs:
     - name: Format code
       run: |
         autopep8 .
+
+    - name: Check code changes
+      run: |
+        git diff --exit-code
+        if ( $? -ne 0 )
+        {
+          exit 1
+        }
