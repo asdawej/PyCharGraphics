@@ -28,7 +28,7 @@ jobs:
     - name: Check code changes
       run: |
         git diff --exit-code
-        if ( $? -ne 0 )
+        if ( $LASTEXITCODE -ne 0 )
         {
           exit 1
         }
