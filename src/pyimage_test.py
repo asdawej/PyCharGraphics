@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import pychargraphics.pygraphics as pgp
 import pychargraphics.pyimage as pim
 
