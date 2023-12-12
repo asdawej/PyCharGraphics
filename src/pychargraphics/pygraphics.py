@@ -32,7 +32,7 @@ class Buffers:
     - `flash`: `() -> None`
     '''
     class Buffer_Loop:
-        def __init__(self, _next: 'Buffers.Buffer_Loop' = None) -> None:
+        def __init__(self, _next: Buffers.Buffer_Loop = None) -> None:
             self.buffer: wincon.PyConsoleScreenBufferType = wincon.CreateConsoleScreenBuffer()
             if not _next:
                 self.next = Buffers.Buffer_Loop(_next=self)
@@ -61,11 +61,11 @@ def pic_resize(pic: CharMap, new_size: MapSize) -> CharMap:
     'Resize a char map'
     _size = (len(pic), len(pic[0]))
     if new_size[0] > _size[0]:
-        for _ in range(new_size[0]-_size[0]):
-            pic.append([' ']*_size[1])
+        for _ in range(new_size[0] - _size[0]):
+            pic.append([' '] * _size[1])
     if new_size[1] > _size[1]:
         for _i in range(new_size[0]):
-            for _ in range(new_size[1]-_size[1]):
+            for _ in range(new_size[1] - _size[1]):
                 pic[_i].append(' ')
     return [
         _l[:new_size[1]]
@@ -79,7 +79,7 @@ def pic_redraw(pic: list[str]) -> CharMap:
     c = max([len(s) for s in pic])
     new_pic = []
     for i in range(r):
-        new_pic.append(list(pic[i])+[' ']*(c-len(pic[i])))
+        new_pic.append(list(pic[i]) + [' '] * (c - len(pic[i])))
     return new_pic
 
 
@@ -115,10 +115,10 @@ class PictureObj:
         else:
             self.height = _pic[0]
             self.width = _pic[1]
-            self.picture = [[' ']*self.width for _ in range(self.height)]
+            self.picture = [[' '] * self.width for _ in range(self.height)]
         self.row = row
         self.col = col
-        self.detect = [[True]*self.width for _ in range(self.height)]
+        self.detect = [[True] * self.width for _ in range(self.height)]
         self.layer = layer
 
     def hollow(self) -> None:
@@ -188,27 +188,27 @@ class PaintBoard:
     def __init__(self, _h: int, _w: int) -> None:
         self.height = _h
         self.width = _w
-        self.board = [[' ']*_w for _ in range(_h)]
+        self.board = [[' '] * _w for _ in range(_h)]
         self.layers: list[list[DynamicObj]] = []
-        self.objs_map: list[list[PictureObj]] = [[None]*_w for _ in range(_h)]
+        self.objs_map: list[list[PictureObj]] = [[None] * _w for _ in range(_h)]
 
     def _paint(self, target_obj: PictureObj) -> None:
         'Original method of painting a `PictureObj`'
         int_row = int(target_obj.row)
         int_col = int(target_obj.col)
-        for i in range(int_row, int_row+target_obj.height):
-            for j in range(int_col, int_col+target_obj.width):
-                if self.objs_map[i][j] == None or target_obj.layer >= self.objs_map[i][j].layer:
-                    if target_obj.detect[i-int_row][j-int_col]:
+        for i in range(int_row, int_row + target_obj.height):
+            for j in range(int_col, int_col + target_obj.width):
+                if self.objs_map[i][j] is None or target_obj.layer >= self.objs_map[i][j].layer:
+                    if target_obj.detect[i - int_row][j - int_col]:
                         self.objs_map[i][j] = target_obj
-                    self.board[i][j] = target_obj.picture[i-int_row][j-int_col]
+                    self.board[i][j] = target_obj.picture[i - int_row][j - int_col]
 
     def _erase(self, target_obj: PictureObj) -> None:
         'Original method of erasing a `PictureObj`'
         int_row = int(target_obj.row)
         int_col = int(target_obj.col)
-        for i in range(int_row, int_row+target_obj.height):
-            for j in range(int_col, int_col+target_obj.width):
+        for i in range(int_row, int_row + target_obj.height):
+            for j in range(int_col, int_col + target_obj.width):
                 if self.objs_map[i][j] == target_obj:
                     self.objs_map[i][j] = None
                     self.board[i][j] = ' '
@@ -216,7 +216,7 @@ class PaintBoard:
     def paint(self, new_obj: PictureObj) -> None:
         'Put a new `PictureObj` on the `PaintBoard`'
         if (_length := len(self.layers)) <= new_obj.layer:
-            for _ in range(new_obj.layer-(_length-1)):
+            for _ in range(new_obj.layer - (_length - 1)):
                 self.layers.append([])
         self._paint(new_obj)
         # new_obj: DynamicObj
@@ -233,7 +233,7 @@ class PaintBoard:
     def render(self, buf: Buffers) -> None:
         'Display the board on the screen'
         for _l in self.board:
-            buf.print(''.join(_l)+'\n')
+            buf.print(''.join(_l) + '\n')
 
     def flash(self, buf: Buffers) -> None:
         'Flash screen'
@@ -251,27 +251,28 @@ class PaintBoard:
 
     def detect_border(self, obj: DynamicObj) -> bool:
         'Check if out of the borders'
-        obj_new_r = int(obj.row+obj.move_r)
-        obj_new_c = int(obj.col+obj.move_c)
+        obj_new_r = int(obj.row + obj.move_r)
+        obj_new_c = int(obj.col + obj.move_c)
         return (obj_new_r < 0 or obj_new_c < 0) or (obj_new_r >= self.height or obj_new_c >= self.width)
 
     def detect_obj(self, obj: DynamicObj, target: PictureObj) -> bool:
         'Check if get into another obj'
-        obj_new_r = int(obj.row+obj.move_r)
-        obj_new_c = int(obj.col+obj.move_c)
+        obj_new_r = int(obj.row + obj.move_r)
+        obj_new_c = int(obj.col + obj.move_c)
         if isinstance(target, DynamicObj):
-            target_new_r = int(target.row+target.move_r)
-            target_new_c = int(target.col+target.move_c)
-            target_new_range_r = range(target_new_r, target_new_r+target.height)
-            target_new_range_c = range(target_new_c, target_new_c+target.width)
-            for i in range(obj_new_r, obj_new_r+obj.height):
-                for j in range(obj_new_c, obj_new_c+obj.width):
+            target_new_r = int(target.row + target.move_r)
+            target_new_c = int(target.col + target.move_c)
+            target_new_range_r = range(target_new_r, target_new_r + target.height)
+            target_new_range_c = range(target_new_c, target_new_c + target.width)
+            for i in range(obj_new_r, obj_new_r + obj.height):
+                for j in range(obj_new_c, obj_new_c + obj.width):
                     if i in target_new_range_r and j in target_new_range_c:
-                        if obj.detect[i-obj_new_r][j-obj_new_c] and target.detect[i-target_new_r][j-target_new_c]:
+                        if (obj.detect[i - obj_new_r][j - obj_new_c]
+                                and target.detect[i - target_new_r][j - target_new_c]):
                             return True
         else:
-            for i in range(obj_new_r, obj_new_r+obj.height):
-                for j in range(obj_new_c, obj_new_c+obj.width):
+            for i in range(obj_new_r, obj_new_r + obj.height):
+                for j in range(obj_new_c, obj_new_c + obj.width):
                     if self.objs_map[i][j] == target:
                         return True
         return False

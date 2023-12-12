@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 # !usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -33,9 +36,9 @@ KB_RIGHT = 77
 
 
 # Background
-background = [[' ']*C for _ in range(R)]
-background[0] = ['=']*C
-background[-1] = ['=']*C
+background = [[' '] * C for _ in range(R)]
+background[0] = ['='] * C
+background[-1] = ['='] * C
 for i in range(R):
     background[i][0] = '#'
     background[i][-1] = '#'
@@ -44,7 +47,7 @@ background.hollow()
 
 
 buf = pgp.Buffers(0.001)                                                # 缓冲区
-obj = pgp.DynamicObj([['#', '#'], ['#', '#']], row=R-3, col=C//2)       # 自机
+obj = pgp.DynamicObj([['#', '#'], ['#', '#']], row=R - 3, col=C // 2)   # 自机
 enemies = [pgp.DynamicObj([['@']], row=1, col=1) for _ in range(10)]    # 敌机
 board = pgp.PaintBoard(R, C)                                            # 画板
 
@@ -100,10 +103,10 @@ def crush_check(board: pgp.PaintBoard,
 t0 = time.time()
 board.paint(background)
 imst = pim.imread('im.dat')
-imst.objs[0].row = R//2-1
-imst.objs[0].col = C//2-4
+imst.objs[0].row = R // 2 - 1
+imst.objs[0].col = C // 2 - 4
 board.paint(imst.objs[0])
-while time.time()-t0 <= 3:
+while time.time() - t0 <= 3:
     board.render_flash(buf)
 board._erase(imst.objs[0])
 
@@ -115,11 +118,11 @@ def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
     '敌机初始化, 随机取一个顶部位置随机方向射出'
     board._erase(enemy)  # 只是擦除敌机, 没有从画板上去除敌机
     enemy.row = 1
-    enemy.col = rd.randint(1, C-2)
-    enemy_ang = (rd.random()-0.5)*math.pi/2
+    enemy.col = rd.randint(1, C - 2)
+    enemy_ang = (rd.random() - 0.5) * math.pi / 2
     enemy_len = 0.25
-    enemy.move_r = enemy_len*math.cos(enemy_ang)
-    enemy.move_c = enemy_len*math.sin(enemy_ang)
+    enemy.move_r = enemy_len * math.cos(enemy_ang)
+    enemy.move_c = enemy_len * math.sin(enemy_ang)
 
 
 # 绘制自机、敌机
@@ -132,7 +135,7 @@ board.render_flash(buf)
 
 t0 = time.time()
 t1 = 5
-while time.time()-t0 <= t1:
+while time.time() - t0 <= t1:
     keyboard_check(obj)
     break_flag = crush_check(board, obj, enemies, enemy_init)
     board.render_flash(buf)
@@ -149,14 +152,14 @@ def enemy_init(enemy: pgp.DynamicObj, board: pgp.PaintBoard) -> None:
     '敌机初始化, 随机取一个顶部位置射出'
     board._erase(enemy)  # 只是擦除敌机, 没有从画板上去除敌机
     enemy.row = 1
-    enemy.col = rd.randint(1, C-2)
+    enemy.col = rd.randint(1, C - 2)
     enemy.move_r = 0.25
     enemy.move_c = 0
 
 
 t0 = time.time()
 t2 = 100
-while time.time()-t0 <= t2:
+while time.time() - t0 <= t2:
     keyboard_check(obj)
     break_flag = crush_check(board, obj, enemies, enemy_init)
     # 撞上敌机
