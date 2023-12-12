@@ -23,3 +23,10 @@ jobs:
     - name: Build package
       run: |
         python -m build
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: pychargraphics-build
+        path: |
+          dist/
